@@ -98,9 +98,13 @@
 <script>
 /* ===================== 設定區 ===================== */
 const CONFIG = {
-  // 角色圖片（電腦版與手機版共用）
+  // 電腦版角色圖（待機 / 說話動畫）
   IMG_IDLE:   "https://res.cloudinary.com/c05zlkva/image/upload/v1793263310/%E4%B8%BB%E8%A7%921.png",
   IMG_SPEAK:  "https://res.cloudinary.com/c05zlkva/image/upload/v1793263852/AISPEAK.gif",
+
+  // 手機版角色圖（待機 / 說話動畫）
+  IMG_IDLE_MOBILE:  "https://res.cloudinary.com/c05zlkva/image/upload/v1793599053/%E9%9D%92%E9%9D%92%E6%93%AC%E4%BA%BA_%E6%89%8B%E6%A9%9F%E6%9D%BF.png",
+  IMG_SPEAK_MOBILE: "https://res.cloudinary.com/c05zlkva/image/upload/v1793599030/AISPEAK-1.gif",
 
   // 電腦版背景與對話框
   IMG_BG:     "https://res.cloudinary.com/c05zlkva/image/upload/v1793264253/%E8%83%8C%E6%99%AF1.png",
@@ -111,7 +115,7 @@ const CONFIG = {
   IMG_BUBBLE_MOBILE: "https://res.cloudinary.com/c05zlkva/image/upload/v1793597923/%E9%9D%92%E9%9D%92%E6%93%AC%E4%BA%BA-03.png",
 
   NAME: "青青KIKI",     // 手機版名字頁籤
-  GREETING: "你好，我是拉蒂設計的新進員工青青KIKI，有甚麼問題都可以問我喔！",
+  GREETING: "你好，我是拉蒂設計的新進虛擬員工青青KIKI，有甚麼問題都可以問我喔！",
 
   // AI 後端（Cloudflare Worker）。留空 = 離線示範模式。⚠️ 請勿把任何 API 金鑰寫在這個檔案裡。
   API_ENDPOINT: "https://qingqing-ai.luxurwind.workers.dev/",
@@ -129,19 +133,25 @@ const widget = $("ai-character-widget"), charImg = $("char-img"), chatText = $("
 
 // 依螢幕比例切換電腦版 / 手機版（寬螢幕為電腦版，直式或窄螢幕為手機版）
 const mobileMQ = matchMedia("(max-width: 768px), (max-aspect-ratio: 4/5)");
+const isMobile = () => document.body.classList.contains("mobile");
+const idleSrc = () => isMobile() ? CONFIG.IMG_IDLE_MOBILE : CONFIG.IMG_IDLE;
+const speakSrc = () => isMobile() ? CONFIG.IMG_SPEAK_MOBILE : CONFIG.IMG_SPEAK;
+
 function applyLayout() {
   const m = mobileMQ.matches;
   document.body.classList.toggle("mobile", m);
   widget.style.backgroundImage = `url("${m ? CONFIG.IMG_BG_MOBILE : CONFIG.IMG_BG}")`;
   bubble.style.backgroundImage = `url("${m ? CONFIG.IMG_BUBBLE_MOBILE : CONFIG.IMG_BUBBLE}")`;
+  if (!speaking) charImg.src = idleSrc();   // 切換版型時，角色圖跟著換
 }
+let speaking = false;
 applyLayout();
 mobileMQ.addEventListener("change", applyLayout);
 
 nameTab.textContent = CONFIG.NAME;
 chatText.textContent = CONFIG.GREETING;
-charImg.src = CONFIG.IMG_IDLE;
-new Image().src = CONFIG.IMG_SPEAK;   // 預載說話動畫
+new Image().src = CONFIG.IMG_SPEAK;          // 預載說話動畫（電腦版）
+new Image().src = CONFIG.IMG_SPEAK_MOBILE;   // 預載說話動畫（手機版）
 new Image().src = CONFIG.IMG_BG_MOBILE;
 new Image().src = CONFIG.IMG_BUBBLE_MOBILE;
 
@@ -157,9 +167,10 @@ function setBtn(label, state) {          // state: "" | "listening" | "busy"
 
 /* ===================== 角色狀態 ===================== */
 function setSpeaking(on) {
+  speaking = on;
   // 加上時間戳，讓 GIF 每次都從頭播放
-  charImg.src = on ? CONFIG.IMG_SPEAK + (CONFIG.IMG_SPEAK.includes("?") ? "&" : "?") + "t=" + Date.now()
-                   : CONFIG.IMG_IDLE;
+  charImg.src = on ? speakSrc() + (speakSrc().includes("?") ? "&" : "?") + "t=" + Date.now()
+                   : idleSrc();
 }
 
 /* ===================== 說話：打字 + 語音 + 動畫同步 ===================== */
