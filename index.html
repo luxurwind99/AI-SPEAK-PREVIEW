@@ -292,7 +292,7 @@ async function handleSend(text) {
   chatText.textContent = "青青想一想…";
   let reply;
   try { reply = await askAI(text); }
-  catch (err) { console.error(err); history.pop(); reply = "不好意思，網路訊號好像有點不好，聽不太清楚"; }
+  catch (err) { console.error(err); history.pop(); reply = "不好意思，網路有點爛，訊號不好，聽不太清楚"; }
   busy = false; setBtn(CONFIG.LABEL_IDLE);
   await say(reply);                      // 說話時按鈕仍可按：按下去就會打斷並重新聆聽
 }
@@ -322,7 +322,7 @@ function startListening() {
     const text = (finalText || interim).trim();
     if (text) handleSend(text);
     else if (errCode === "not-allowed" || errCode === "service-not-allowed") say("請先允許瀏覽器使用麥克風喔！");
-    else say("不好意思，網路訊號好像有點不好，聽不太清楚");
+    else say("不好意思，網路有點爛，訊號不好，聽不太清楚");
   };
   try { rec.start(); } catch (_) { listening = false; setBtn(CONFIG.LABEL_IDLE); }
   startListening.rec = rec;
