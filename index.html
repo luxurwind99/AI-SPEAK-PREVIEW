@@ -88,7 +88,7 @@
   <div id="char-layer"><img id="char-img" alt="青青" draggable="false"></div>
   <div id="chat-bubble-container"></div>
   <div id="name-tab"></div>
-  <div id="chat-text">你好，我是拉蒂設計的新進員工青青KIKI，有甚麼問題都可以問我喔！</div>
+  <div id="chat-text">你好，我是拉蒂設計的新進虛擬員工青青KIKI，有甚麼問題都可以問我喔！</div>
   <div id="controls">
     <input id="msg" type="text" placeholder="輸入文字…" autocomplete="off" enterkeyhint="send" hidden>
     <button id="talk-btn">點擊與我對話</button>
@@ -243,11 +243,10 @@ async function say(text) {
 
 /* ===================== AI 對話 ===================== */
 const DEMO_REPLIES = [
-  [/你好|哈囉|嗨|hi|hello/i, "哈囉～我是青青，見到你我『青』不自禁笑了！"],
-  [/名字|你是誰|叫什麼/, "我叫青青！不是情情，是青青草原的青～"],
-  [/作品|設計|案例/, "每件作品都超用心，連我看了都『設』不得走！"],
-  [/價|錢|費用|報價/, "價格找設計師聊最準，我只負責開心～"],
-  [/謝謝|感謝/, "不客氣～你開心，青青就開心！"],
+  [/你好|哈囉|嗨|hi|hello/i, "蝦毀！"],
+  [/作品|設計|案例/, "代表作品有台北市木柵動物園馬特展，新北市育兒寶貝袋繪本封面，台北市一零一大樓茶包包裝封面等等，可以前往搜尋拉蒂設計觀看喔"],
+  [/價|錢|費用|報價/, "詳細價格請找我們老闆討論喔，去FB留言"],
+  [/謝謝|感謝/, "感恩～"],
 ];
 const demoReply = t => (DEMO_REPLIES.find(([re]) => re.test(t)) || [])[1]
   || "青青聽到了！（離線示範中，接上 AI 後就能暢聊囉）";
@@ -282,7 +281,7 @@ async function handleSend(text) {
   chatText.textContent = "青青想一想…";
   let reply;
   try { reply = await askAI(text); }
-  catch (err) { console.error(err); history.pop(); reply = "哎呀，青青剛剛有點恍神，可以再說一次嗎？"; }
+  catch (err) { console.error(err); history.pop(); reply = "不好意思，網路訊號好像有點不好，聽不太清楚"; }
   busy = false; setBtn(CONFIG.LABEL_IDLE);
   await say(reply);                      // 說話時按鈕仍可按：按下去就會打斷並重新聆聽
 }
@@ -312,7 +311,7 @@ function startListening() {
     const text = (finalText || interim).trim();
     if (text) handleSend(text);
     else if (errCode === "not-allowed" || errCode === "service-not-allowed") say("請先允許瀏覽器使用麥克風喔！");
-    else say("我沒聽清楚，再按一次跟我說吧！");
+    else say("不好意思，網路訊號好像有點不好，聽不太清楚");
   };
   try { rec.start(); } catch (_) { listening = false; setBtn(CONFIG.LABEL_IDLE); }
   startListening.rec = rec;
